@@ -1,6 +1,8 @@
 # School Api
 
-## Swagger open docs is available in /api/docs for convenience
+## Server is live at <a href='https://school-bfju.onrender.com/api/docs#/'> Render </a>
+
+## Swagger open docs is available in /api/docs endpoint of localhost for convenience
 
 api/assignment to create teacher, the subject he/she will teach and the class he /she will teach it in.
 This endpoint will create them even if they dont exist.
