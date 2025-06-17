@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  rollNumber     Int         @id @default(autoincrement())
+  name           String
+  schoolClassId  Int
+  contactDetails String      @unique
+  //technically its still 5 fields like the question told me to. reduces redundancy if i just assign a foreign key
+  schoolClass    SchoolClass @relation(fields: [schoolClassId], references: [id])
+
+  @@unique([name, contactDetails]) // allow same name not number
+}
+
+model Teacher {
+  id             Int                  @id @default(autoincrement())
+  name           String
+  contactDetails String               @unique
+  assignments    TeachingAssignment[] // teacher can have teaches many classes and many subjects. its basically one teacher many subjects many classes
+
+  @@unique([name, contactDetails]) // same reason as above
+}
+
+model SchoolClass {
+  id          Int                  @id @default(autoincrement())
+  section     String
+  classNumber Int
+  students    Student[] // a class needs students. teachers we can get from assignments cuz we would have too much redundancy not just with class but also subjects and also teachers
+  assignments TeachingAssignment[]
+// a class can have many teachers assigned to it teaching many subjects.
+  @@unique([classNumber, section])
+}
+
+model Subject {
+  id          Int                  @id @default(autoincrement())
+  name        String               @unique
+  assignments TeachingAssignment[] // a subject also can be taught by any subject in any class
+}
+
+model TeachingAssignment { // since 3 models are dependent it made more sense to make one single model. 
+// this doesnt give us the exact endpoint /api/dashboard but havin
+// teacher , class in subject.
+// class, subject in teacher.
+// subject , teacher in class didnt make sense when u could avoid all the repeatation using a single model.
+  id            Int         @id @default(autoincrement())
+  teacherId     Int
+  subjectId     Int
+  schoolClassId Int
+  schoolClass   SchoolClass @relation(fields: [schoolClassId], references: [id])
+  subject       Subject     @relation(fields: [subjectId], references: [id])
+  teacher       Teacher     @relation(fields: [teacherId], references: [id])
+
+  @@unique([teacherId, subjectId, schoolClassId]) // prevent duplication for teacher teaching the same subject in the exact same class.
+}
